@@ -7,7 +7,12 @@
 		{
 			"Name": "UE5_RPG_Series",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"CoreUObject",
+				"Engine",
+				"UMG"
+			]
 		}
 	],
 	"Plugins": [

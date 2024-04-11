@@ -39,6 +39,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	class UInputAction* SetDestinationTouchAction;
 
+public:
+	FORCEINLINE void CanInteraction() { bCanInteraction = true; }
+	FORCEINLINE void CannotInteraction() { bCanInteraction = false; }
+
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
@@ -56,10 +60,15 @@ protected:
 	void OnTouchReleased();
 
 private:
+	void DoInteraction();
+
+private:
 	FVector CachedDestination;
 
 	bool bIsTouch; // Is it a touch device
 	float FollowTime; // For how long it has been pressed
+	
+	bool bCanInteraction;
 };
 
 

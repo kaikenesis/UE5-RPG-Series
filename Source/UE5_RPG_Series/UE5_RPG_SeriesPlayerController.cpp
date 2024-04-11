@@ -50,6 +50,10 @@ void AUE5_RPG_SeriesPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &AUE5_RPG_SeriesPlayerController::OnTouchReleased);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &AUE5_RPG_SeriesPlayerController::OnTouchReleased);
 	}
+
+	{
+		InputComponent->BindKey(EKeys::F, IE_Pressed, this, &AUE5_RPG_SeriesPlayerController::DoInteraction);
+	}
 }
 
 void AUE5_RPG_SeriesPlayerController::OnInputStarted()
@@ -114,4 +118,11 @@ void AUE5_RPG_SeriesPlayerController::OnTouchReleased()
 {
 	bIsTouch = false;
 	OnSetDestinationReleased();
+}
+
+void AUE5_RPG_SeriesPlayerController::DoInteraction()
+{
+	if (bCanInteraction == false)
+		return;
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Interaction"));
 }
