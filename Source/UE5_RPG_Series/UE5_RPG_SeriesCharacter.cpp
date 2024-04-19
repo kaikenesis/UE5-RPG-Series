@@ -10,6 +10,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "Objects/CInteractionActor.h"
+#include "UE5_RPG_SeriesPlayerController.h"
 
 AUE5_RPG_SeriesCharacter::AUE5_RPG_SeriesCharacter()
 {
@@ -40,12 +42,45 @@ AUE5_RPG_SeriesCharacter::AUE5_RPG_SeriesCharacter()
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	// Create CapsuleCollision
+	InteractCollision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("InteractCollision"));
+	InteractCollision->SetupAttachment(GetMesh());
+	InteractCollision->SetCapsuleHalfHeight(88.f);
+	InteractCollision->SetCapsuleRadius(44.f);
+
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
+void AUE5_RPG_SeriesCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	InteractCollision->OnComponentBeginOverlap.AddDynamic(this, &AUE5_RPG_SeriesCharacter::OnInteracion);
+	InteractCollision->OnComponentEndOverlap.AddDynamic(this, &AUE5_RPG_SeriesCharacter::OffInteraction);
+}
+
 void AUE5_RPG_SeriesCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+
+}
+
+void AUE5_RPG_SeriesCharacter::OnInteracion(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AUE5_RPG_SeriesPlayerController* controller = Cast<AUE5_RPG_SeriesPlayerController>(GetController());
+	if (controller == nullptr)
+		return;
+
+	controller->AddInteractionActor(OtherActor);
+}
+
+void AUE5_RPG_SeriesCharacter::OffInteraction(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	AUE5_RPG_SeriesPlayerController* controller = Cast<AUE5_RPG_SeriesPlayerController>(GetController());
+	if (controller == nullptr)
+		return;
+
+	controller->RemoveInteractionActor(OtherActor);
 }

@@ -1,5 +1,6 @@
 #include "CInteractionActor.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/CInteractionComponent.h"
 #include "GameFramework/Character.h"
 #include "UE5_RPG_SeriesPlayerController.h"
 
@@ -13,18 +14,13 @@ ACInteractionActor::ACInteractionActor()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(Root);
 
-	Collision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collision"));
-	Collision->SetupAttachment(Mesh);
-	Collision->SetCapsuleHalfHeight(88.f);
-	Collision->SetCapsuleRadius(44.f);
+	InteractionComp = CreateDefaultSubobject<UCInteractionComponent>(TEXT("InteractComp"));
 }
 
 void ACInteractionActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	Collision->OnComponentBeginOverlap.AddDynamic(this, &ACInteractionActor::OnBeginOverlap);
-	Collision->OnComponentEndOverlap.AddDynamic(this, &ACInteractionActor::OnEndOverlap);
 }
 
 void ACInteractionActor::Tick(float DeltaTime)
@@ -33,29 +29,7 @@ void ACInteractionActor::Tick(float DeltaTime)
 
 }
 
-void ACInteractionActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ACInteractionActor::TryInteraction()
 {
-	ACharacter* character = Cast<ACharacter>(OtherActor);
-	if (character == nullptr)
-		return;
-
-	AUE5_RPG_SeriesPlayerController* controller = Cast<AUE5_RPG_SeriesPlayerController>(character->GetController());
-	if (controller == nullptr)
-		return;
-
-	controller->CanInteraction();
+	InteractionComp->DoInteractionResource();
 }
-
-void ACInteractionActor::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	ACharacter* character = Cast<ACharacter>(OtherActor);
-	if (character == nullptr)
-		return;
-
-	AUE5_RPG_SeriesPlayerController* controller = Cast<AUE5_RPG_SeriesPlayerController>(character->GetController());
-	if (controller == nullptr)
-		return;
-
-	controller->CannotInteraction();
-}
-

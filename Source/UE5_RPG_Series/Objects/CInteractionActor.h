@@ -18,21 +18,18 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-private:
-	UFUNCTION()
-		void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-		void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+public:
+	void TryInteraction();
 
 private:
 	UPROPERTY(EditDefaultsOnly)
-		class USceneComponent* Root;
+	class USceneComponent* Root;
 
 	UPROPERTY(EditDefaultsOnly)
-		class UStaticMeshComponent* Mesh;
+	class UStaticMeshComponent* Mesh;
 
-	UPROPERTY(EditDefaultsOnly)
-		class UCapsuleComponent* Collision;
+public:
+	UPROPERTY(VisibleAnywhere)
+	class UCInteractionComponent* InteractionComp;
 
 };

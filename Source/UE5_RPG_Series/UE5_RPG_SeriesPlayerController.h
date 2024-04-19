@@ -40,8 +40,8 @@ public:
 	class UInputAction* SetDestinationTouchAction;
 
 public:
-	FORCEINLINE void CanInteraction() { bCanInteraction = true; }
-	FORCEINLINE void CannotInteraction() { bCanInteraction = false; }
+	void AddInteractionActor(AActor* OtherActor);
+	void RemoveInteractionActor(AActor* OtherActor);
 
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
@@ -68,6 +68,7 @@ private:
 	bool bIsTouch; // Is it a touch device
 	float FollowTime; // For how long it has been pressed
 	
+	TArray<class ACInteractionActor*> InteractActors;
 	bool bCanInteraction;
 };
 

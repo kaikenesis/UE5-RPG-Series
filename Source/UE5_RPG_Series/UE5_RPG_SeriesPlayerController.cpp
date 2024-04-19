@@ -9,6 +9,7 @@
 #include "Engine/World.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Objects/CInteractionActor.h"
 
 AUE5_RPG_SeriesPlayerController::AUE5_RPG_SeriesPlayerController()
 {
@@ -28,6 +29,30 @@ void AUE5_RPG_SeriesPlayerController::BeginPlay()
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
+}
+
+void AUE5_RPG_SeriesPlayerController::AddInteractionActor(AActor* OtherActor)
+{
+	ACInteractionActor* interactionActor = Cast<ACInteractionActor>(OtherActor);
+	if (interactionActor != nullptr)
+		InteractActors.Add(interactionActor);
+	
+	if (InteractActors.Num() > 0)
+		bCanInteraction = true;
+	else
+		bCanInteraction = false;
+}
+
+void AUE5_RPG_SeriesPlayerController::RemoveInteractionActor(AActor* OtherActor)
+{
+	ACInteractionActor* interactionActor = Cast<ACInteractionActor>(OtherActor);
+	if (interactionActor != nullptr)
+		InteractActors.RemoveSingle(interactionActor);
+
+	if (InteractActors.Num() > 0)
+		bCanInteraction = true;
+	else
+		bCanInteraction = false;
 }
 
 void AUE5_RPG_SeriesPlayerController::SetupInputComponent()
@@ -124,5 +149,6 @@ void AUE5_RPG_SeriesPlayerController::DoInteraction()
 {
 	if (bCanInteraction == false)
 		return;
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Interaction"));
+
+	InteractActors[0]->TryInteraction();
 }
