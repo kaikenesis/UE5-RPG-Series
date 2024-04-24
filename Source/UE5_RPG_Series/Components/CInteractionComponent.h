@@ -29,5 +29,9 @@ public:
 	void DoInteractionResource();
 
 public:
-	EInteractType InteractType;
+	UPROPERTY(EditAnywhere)
+	EInteractType InteractType = EInteractType::None;
+	
+	UPROPERTY(EditAnywhere)
+	int32 ItemNum = -1;
 };

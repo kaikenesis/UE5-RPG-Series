@@ -21,7 +21,8 @@ public class UE5_RPG_Series : ModuleRules
 			"AIModule",
 			"Niagara",
 			"EnhancedInput",
-			"Slate"
+			"Slate",
+			"UMG"
 		});
     }
 }

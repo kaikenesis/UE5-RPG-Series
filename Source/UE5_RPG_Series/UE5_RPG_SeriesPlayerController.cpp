@@ -150,5 +150,6 @@ void AUE5_RPG_SeriesPlayerController::DoInteraction()
 	if (bCanInteraction == false)
 		return;
 
-	InteractActors[0]->TryInteraction();
+	for(const auto interactActor : InteractActors)
+		interactActor->TryInteraction();
 }
