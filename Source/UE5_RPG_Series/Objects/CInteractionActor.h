@@ -18,9 +18,6 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-public:
-	void TryInteraction();
-
 private:
 	UPROPERTY(EditDefaultsOnly)
 	class USceneComponent* Root;

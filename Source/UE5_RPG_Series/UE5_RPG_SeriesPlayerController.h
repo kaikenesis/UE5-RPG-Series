@@ -70,6 +70,10 @@ private:
 	
 	TArray<class ACInteractionActor*> InteractActors;
 	bool bCanInteraction;
+
+public:
+	UPROPERTY(VisibleDefaultsOnly)
+	class UCInventorySystem* InventorySystem;
 };
 
 

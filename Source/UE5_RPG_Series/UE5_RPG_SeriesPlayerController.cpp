@@ -10,6 +10,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Objects/CInteractionActor.h"
+#include "Components/CInventorySystem.h"
+#include "Components/CInteractionComponent.h"
 
 AUE5_RPG_SeriesPlayerController::AUE5_RPG_SeriesPlayerController()
 {
@@ -17,6 +19,8 @@ AUE5_RPG_SeriesPlayerController::AUE5_RPG_SeriesPlayerController()
 	DefaultMouseCursor = EMouseCursor::Default;
 	CachedDestination = FVector::ZeroVector;
 	FollowTime = 0.f;
+
+	InventorySystem = CreateDefaultSubobject<UCInventorySystem>(TEXT("InventorySystem"));
 }
 
 void AUE5_RPG_SeriesPlayerController::BeginPlay()
@@ -150,6 +154,8 @@ void AUE5_RPG_SeriesPlayerController::DoInteraction()
 	if (bCanInteraction == false)
 		return;
 
-	for(const auto interactActor : InteractActors)
-		interactActor->TryInteraction();
+	for (const auto interactActor : InteractActors)
+	{
+		InventorySystem->AddItem(interactActor->InteractionComp->ItemNum);
+	}
 }

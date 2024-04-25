@@ -14,9 +14,23 @@ protected:
 	virtual void NativeConstruct() override;
 
 public:
+	void SetImageTexture(class UTexture2D* InTexture);
+	void IncreaseItemCount();
+	void DecreaseItemCount();
+
+	FORCEINLINE void SetItemNum(int InNum) { ItemNum = InNum; }
+	FORCEINLINE int GetItemNum() { return ItemNum; }
+
+	class UObject* GetImageTexture();
+
+public:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* ItemCount;
 
 	UPROPERTY(meta = (BindWidget))
 	class UImage* ItemImage;
+
+private:
+	int ItemNum = -1;
+	int Count = 0;
 };

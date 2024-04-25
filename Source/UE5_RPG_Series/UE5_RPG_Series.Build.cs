@@ -22,7 +22,8 @@ public class UE5_RPG_Series : ModuleRules
 			"Niagara",
 			"EnhancedInput",
 			"Slate",
-			"UMG"
+            "SlateCore",
+            "UMG"
 		});
     }
 }

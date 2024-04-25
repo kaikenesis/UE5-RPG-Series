@@ -29,7 +29,3 @@ void ACInteractionActor::Tick(float DeltaTime)
 
 }
 
-void ACInteractionActor::TryInteraction()
-{
-	InteractionComp->DoInteractionResource();
-}

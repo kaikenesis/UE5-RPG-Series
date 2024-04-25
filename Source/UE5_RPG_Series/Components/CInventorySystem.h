@@ -19,5 +19,11 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+public:
+	void Init();
+	void AddItem(int InItemNum = -1);
+
+public:
+	TSubclassOf<class UCInventoryWidget> InventoryWidgetClass;
+	class UCInventoryWidget* InventoryWidget;
 };

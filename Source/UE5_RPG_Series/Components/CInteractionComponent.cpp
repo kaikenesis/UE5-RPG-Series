@@ -23,6 +23,6 @@ void UCInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UCInteractionComponent::DoInteractionResource()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Interaction"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Interaction"));
 }
 
