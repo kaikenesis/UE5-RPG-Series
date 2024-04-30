@@ -20,7 +20,7 @@ protected:
 public:
 	void CheckItem(int InItemNum = -1);
 	void IncreaseItem(class UCItemWidget* InWidget, int InItemNum = -1);
-	class UCItemWidget* AddItem(int InItemNum = -1);
+	void AddItem(class UCItemWidget* InWidget, int InItemNum = -1);
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -32,9 +32,11 @@ private:
 public:
 	TArray<class UCanvasPanel*> ItemSlots;
 	TArray<class UHorizontalBox*> ItemContainors;
+	TArray<class UBorder*> Borders;
+	TArray<class UCItemWidget*> ItemWidgets;
 
 	UPROPERTY(meta = (BindWidget))
-	class UVerticalBox* InventoryContainor;
+	class UScrollBox* InventoryContainor;
 
 	class AUE5_RPG_SeriesPlayerController* PlayerController;
 

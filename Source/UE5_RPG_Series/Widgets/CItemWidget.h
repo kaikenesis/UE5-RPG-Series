@@ -14,9 +14,15 @@ protected:
 	virtual void NativeConstruct() override;
 
 public:
+	void Init();
+
 	void SetImageTexture(class UTexture2D* InTexture);
 	void IncreaseItemCount();
 	void DecreaseItemCount();
+
+	void SetVisibleWithCount(ESlateVisibility InVisibility);
+	// Count Visibilty = Hidden
+	void SetVisibleWithoutCount(ESlateVisibility InVisibility);
 
 	FORCEINLINE void SetItemNum(int InNum) { ItemNum = InNum; }
 	FORCEINLINE int GetItemNum() { return ItemNum; }
@@ -24,6 +30,9 @@ public:
 	class UObject* GetImageTexture();
 
 public:
+	UPROPERTY(meta = (BindWidget))
+	class UCanvasPanel* CanvasPanel;
+
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* ItemCount;
 

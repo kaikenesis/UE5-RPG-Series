@@ -1,10 +1,11 @@
 #include "Widgets/CInventoryWidget.h"
 #include "Engine/DataTable.h"
-#include "Components/VerticalBox.h"
+#include "Components/ScrollBox.h"
 #include "Components/HorizontalBox.h"
 #include "Components/CanvasPanel.h"
 #include "Components/Image.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/Border.h"
 #include "Widgets/CItemWidget.h"
 #include "UE5_RPG_SeriesPlayerController.h"
 
@@ -31,9 +32,11 @@ void UCInventoryWidget::NativeConstruct()
 	TArray<UWidget*> inventoryChildren = InventoryContainor->GetAllChildren();
 	for (const auto& child : inventoryChildren)
 	{
-		UHorizontalBox* containor = Cast<UHorizontalBox>(child);
-		if (containor != nullptr)
-			ItemContainors.Add(containor);
+		UHorizontalBox* itemContainor = Cast<UHorizontalBox>(child);
+		if (itemContainor != nullptr)
+		{
+			ItemContainors.Add(itemContainor);
+		}
 	}
 
 	for (const auto& itemContainor : ItemContainors)
@@ -46,40 +49,50 @@ void UCInventoryWidget::NativeConstruct()
 				ItemSlots.Add(itemSlot);
 		}
 	}
-}
 
-void UCInventoryWidget::CheckItem(int InItemNum)
-{
 	for (const auto& itemSlot : ItemSlots)
 	{
-		TArray<UWidget*> itemChildren = itemSlot->GetAllChildren();
-		for (const auto& child : itemChildren)
+		TArray<UWidget*> itemSlotChildren = itemSlot->GetAllChildren();
+		for (const auto& child : itemSlotChildren)
+		{
+			UBorder* border = Cast<UBorder>(child);
+			if (border != nullptr)
+				Borders.Add(border);
+		}
+	}
+
+	for (const auto& border : Borders)
+	{
+		TArray<UWidget*> borderChildren = border->GetAllChildren();
+		for (const auto& child : borderChildren)
 		{
 			UCItemWidget* itemWidget = Cast<UCItemWidget>(child);
 			if (itemWidget != nullptr)
 			{
-				if (itemWidget->GetItemNum() == Items[InItemNum - 1]->ItemNum)
-				{
-					IncreaseItem(itemWidget, InItemNum);
-					return;
-				}
-				break;
+				itemWidget->Init();
+				ItemWidgets.Add(itemWidget);
 			}
+		}
+	}
+}
 
-			if (child == itemChildren[itemChildren.Num() - 1])
+void UCInventoryWidget::CheckItem(int InItemNum)
+{
+	for (const auto& itemWidget : ItemWidgets)
+	{
+		if (itemWidget->GetVisibility() == ESlateVisibility::Visible)
+		{
+			if (itemWidget->GetItemNum() == Items[InItemNum - 1]->ItemNum)
 			{
-				UCItemWidget* newItemWidget = AddItem(InItemNum);
-				if (newItemWidget != nullptr)
-				{
-					itemSlot->AddChild(newItemWidget);
-
-					newItemWidget->SetAnchorsInViewport(FAnchors(0.5f, 0.5f, 0.5f, 0.5f));
-					newItemWidget->SetPositionInViewport(FVector2D(0.0f, 0.0f));
-					newItemWidget->SetDesiredSizeInViewport(FVector2D(90.f, 100.f));
-					newItemWidget->SetAlignmentInViewport(FVector2D(0.5f, 0.5f));
-				}
+				IncreaseItem(itemWidget, InItemNum);
 				return;
 			}
+		}
+
+		else
+		{
+			AddItem(itemWidget, InItemNum);
+			return;
 		}
 	}
 }
@@ -89,15 +102,16 @@ void UCInventoryWidget::IncreaseItem(UCItemWidget* InWidget, int InItemNum)
 	InWidget->IncreaseItemCount();
 }
 
-UCItemWidget* UCInventoryWidget::AddItem(int InItemNum)
+void UCInventoryWidget::AddItem(class UCItemWidget* InWidget, int InItemNum)
 {
-	UCItemWidget* itemWidget = CreateWidget<UCItemWidget>(this, ItemWidgetClass);
-	if (itemWidget != nullptr)
+	if (InWidget != nullptr)
 	{
-		itemWidget->SetImageTexture(Items[InItemNum - 1]->ItemTexture);
-		itemWidget->IncreaseItemCount();
-		itemWidget->SetItemNum(InItemNum);
+		InWidget->SetImageTexture(Items[InItemNum - 1]->ItemTexture);
+		InWidget->IncreaseItemCount();
+		InWidget->SetItemNum(InItemNum);
+
+		InWidget->SetVisibleWithCount(ESlateVisibility::Visible);
 	}
 
-	return itemWidget;
+	return;
 }
