@@ -6,6 +6,7 @@
 #include "Components/Image.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Border.h"
+#include "Components/Button.h"
 #include "Widgets/CItemWidget.h"
 #include "UE5_RPG_SeriesPlayerController.h"
 
@@ -25,7 +26,11 @@ void UCInventoryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	PlayerController = Cast<AUE5_RPG_SeriesPlayerController>(GetOwningPlayer());
+	BtnExit->OnClicked.AddDynamic(this, &UCInventoryWidget::HideWidget);
+
+	AUE5_RPG_SeriesPlayerController* playerController = Cast<AUE5_RPG_SeriesPlayerController>(GetOwningPlayer());
+	if(playerController != nullptr)
+		PlayerController = playerController;
 
 	ItemDataList->GetAllRows<FItemList>("", Items);
 
@@ -70,48 +75,154 @@ void UCInventoryWidget::NativeConstruct()
 			if (itemWidget != nullptr)
 			{
 				itemWidget->Init();
+				itemWidget->BindItemSlotButton();
+				itemWidget->OnItemSlotClicked.AddDynamic(this, &UCInventoryWidget::OnItemSlotClicked);
 				ItemWidgets.Add(itemWidget);
 			}
 		}
 	}
+	MouseItem->Init();
 }
 
-void UCInventoryWidget::CheckItem(int InItemNum)
+void UCInventoryWidget::CheckItem(bool bUseItem, int InItemNum, int InItemValue)
 {
 	for (const auto& itemWidget : ItemWidgets)
 	{
 		if (itemWidget->GetVisibility() == ESlateVisibility::Visible)
 		{
-			if (itemWidget->GetItemNum() == Items[InItemNum - 1]->ItemNum)
+			if (itemWidget->GetItemNum() == Items[InItemNum]->ItemNum)
 			{
-				IncreaseItem(itemWidget, InItemNum);
-				return;
+				if (bUseItem == false)
+				{
+					IncreaseItem(itemWidget, InItemValue);
+					return;
+				}
+				else
+				{
+					DecreaseItem(itemWidget, InItemValue);
+					return;
+				}
 			}
 		}
+	}
 
-		else
+	for (const auto& itemWidget : ItemWidgets)
+	{
+		if (itemWidget->GetVisibility() == ESlateVisibility::Hidden)
 		{
-			AddItem(itemWidget, InItemNum);
-			return;
-		}
+			if (bUseItem == false)
+			{
+				AddItem(itemWidget, InItemNum, InItemValue);
+				return;
+			}
+		}	
 	}
 }
 
-void UCInventoryWidget::IncreaseItem(UCItemWidget* InWidget, int InItemNum)
+void UCInventoryWidget::IncreaseItem(UCItemWidget* InWidget, int InItemValue)
 {
-	InWidget->IncreaseItemCount();
+	if (InWidget != nullptr)
+		InWidget->IncreaseItemCount(InItemValue);
 }
 
-void UCInventoryWidget::AddItem(class UCItemWidget* InWidget, int InItemNum)
+void UCInventoryWidget::DecreaseItem(UCItemWidget* InWidget, int InItemValue)
 {
 	if (InWidget != nullptr)
 	{
-		InWidget->SetImageTexture(Items[InItemNum - 1]->ItemTexture);
-		InWidget->IncreaseItemCount();
+		InWidget->DecreaseItemCount(InItemValue);
+
+		if (InWidget->GetItemCount() == 0)
+			RemoveItem(InWidget);
+	}
+}
+
+void UCInventoryWidget::AddItem(class UCItemWidget* InWidget, int InItemNum, int InItemValue)
+{
+	if (InWidget != nullptr)
+	{
+		InWidget->SetImageTexture(Items[InItemNum]->ItemTexture);
+		InWidget->IncreaseItemCount(InItemValue);
 		InWidget->SetItemNum(InItemNum);
 
 		InWidget->SetVisibleWithCount(ESlateVisibility::Visible);
 	}
 
 	return;
+}
+
+void UCInventoryWidget::RemoveItem(UCItemWidget* InWidget)
+{
+	if (InWidget != nullptr)
+	{
+		InWidget->SetVisibleWithCount(ESlateVisibility::Hidden);
+	}
+}
+
+void UCInventoryWidget::SetMouseItemPosition(FVector2D InPosition)
+{
+	MouseItem->SetPositionInViewport(InPosition);
+}
+
+void UCInventoryWidget::HideWidget()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("HideWidget"));
+
+	FInputModeGameOnly inputmode;
+	PlayerController->SetInputMode(inputmode);
+	SetVisibility(ESlateVisibility::Hidden);
+
+	PlayerController->bIsInventoryVisible = false;
+}
+
+void UCInventoryWidget::OnItemSlotClicked(UCItemWidget* InItemWidget)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("OnItemSlotClicked"));
+
+	if (MouseItem->GetVisibility() == ESlateVisibility::Hidden)
+	{
+		if (InItemWidget->GetVisibility() == ESlateVisibility::Hidden)
+			return;
+		
+		else if (InItemWidget->GetVisibility() == ESlateVisibility::Visible)
+		{
+			MouseItem->SetImageTexture(Items[InItemWidget->GetItemNum()]->ItemTexture);
+			MouseItem->SetItemNum(InItemWidget->GetItemNum());
+			MouseItem->SetItemCount(InItemWidget->GetItemCount());
+			MouseItem->SetVisibleWithCount(ESlateVisibility::Visible);
+
+			InItemWidget->SetVisibleWithCount(ESlateVisibility::Hidden);
+			return;
+		}
+	}
+	else if (MouseItem->GetVisibility() == ESlateVisibility::Visible)
+	{
+		if (InItemWidget->GetVisibility() == ESlateVisibility::Hidden)
+		{
+			InItemWidget->SetImageTexture(Items[MouseItem->GetItemNum()]->ItemTexture);
+			InItemWidget->SetItemNum(MouseItem->GetItemNum());
+			InItemWidget->SetItemCount(MouseItem->GetItemCount());
+			InItemWidget->SetVisibleWithCount(ESlateVisibility::Visible);
+
+			MouseItem->SetVisibleWithCount(ESlateVisibility::Hidden);
+
+			return;
+		}
+
+		else if (InItemWidget->GetVisibility() == ESlateVisibility::Visible)
+		{
+			UTexture2D* textureTemp = Items[MouseItem->GetItemNum()]->ItemTexture;
+			int itemNumTemp = MouseItem->GetItemNum();
+			int itemCountTemp = MouseItem->GetItemCount();
+
+			MouseItem->SetImageTexture(Items[InItemWidget->GetItemNum()]->ItemTexture);
+			MouseItem->SetItemNum(InItemWidget->GetItemNum());
+			MouseItem->SetItemCount(InItemWidget->GetItemCount());
+
+			InItemWidget->SetImageTexture(textureTemp);
+			InItemWidget->SetItemNum(itemNumTemp);
+			InItemWidget->SetItemCount(itemCountTemp);
+
+			return;
+		}
+	}
 }

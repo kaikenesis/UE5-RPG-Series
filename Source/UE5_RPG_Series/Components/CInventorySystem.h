@@ -21,9 +21,17 @@ public:
 
 public:
 	void Init();
-	void AddItem(int InItemNum = -1);
+	void Update();
+
+	void AddItem(int InItemNum = -1, int InItemValue = 0);
+	void UseItem(int InItemNum = -1, int InItemValue = 0);
+
+	void UpdateWidget();
+
+	void ShowWidget();
 
 public:
 	TSubclassOf<class UCInventoryWidget> InventoryWidgetClass;
 	class UCInventoryWidget* InventoryWidget;
+	class AUE5_RPG_SeriesPlayerController* OwnerController;
 };

@@ -35,6 +35,16 @@ void AUE5_RPG_SeriesPlayerController::BeginPlay()
 	}
 }
 
+void AUE5_RPG_SeriesPlayerController::UseItem_Interface(int InItemNum, int InItemValue)
+{
+	UseItem(InItemNum, InItemValue);
+}
+
+void AUE5_RPG_SeriesPlayerController::UseItem(int InItemNum, int InItemValue)
+{
+	InventorySystem->UseItem(InItemNum, InItemValue);
+}
+
 void AUE5_RPG_SeriesPlayerController::AddInteractionActor(AActor* OtherActor)
 {
 	ACInteractionActor* interactionActor = Cast<ACInteractionActor>(OtherActor);
@@ -82,6 +92,7 @@ void AUE5_RPG_SeriesPlayerController::SetupInputComponent()
 
 	{
 		InputComponent->BindKey(EKeys::F, IE_Pressed, this, &AUE5_RPG_SeriesPlayerController::DoInteraction);
+		InputComponent->BindKey(EKeys::I, IE_Pressed, this, &AUE5_RPG_SeriesPlayerController::ShowInventory);
 	}
 }
 
@@ -156,6 +167,18 @@ void AUE5_RPG_SeriesPlayerController::DoInteraction()
 
 	for (const auto interactActor : InteractActors)
 	{
-		InventorySystem->AddItem(interactActor->InteractionComp->ItemNum);
+		InventorySystem->AddItem(interactActor->InteractionComp->ItemNum, interactActor->InteractionComp->ItemValue);
+	}
+}
+
+void AUE5_RPG_SeriesPlayerController::ShowInventory()
+{
+	if (bIsInventoryVisible == false)
+	{
+		InventorySystem->ShowWidget();
+		FInputModeUIOnly inputmode;
+		SetInputMode(inputmode);
+
+		bIsInventoryVisible = true;
 	}
 }

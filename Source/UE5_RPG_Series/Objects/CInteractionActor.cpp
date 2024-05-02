@@ -13,6 +13,7 @@ ACInteractionActor::ACInteractionActor()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(Root);
+	Mesh->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
 
 	InteractionComp = CreateDefaultSubobject<UCInteractionComponent>(TEXT("InteractComp"));
 }

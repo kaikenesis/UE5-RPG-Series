@@ -1,6 +1,7 @@
 #include "Components/CInventorySystem.h"
 #include "Widgets/CInventoryWidget.h"
 #include "UE5_RPG_SeriesPlayerController.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 
 UCInventorySystem::UCInventorySystem()
 {
@@ -28,16 +29,42 @@ void UCInventorySystem::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void UCInventorySystem::Init()
 {
+
 	AUE5_RPG_SeriesPlayerController* ownerController = Cast<AUE5_RPG_SeriesPlayerController>(GetOwner());
 	if (ownerController != nullptr)
 	{
-		InventoryWidget = CreateWidget<UCInventoryWidget>(ownerController, InventoryWidgetClass);
+		OwnerController = ownerController;
+		InventoryWidget = CreateWidget<UCInventoryWidget>(OwnerController, InventoryWidgetClass);
 		InventoryWidget->AddToViewport();
+		InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
-void UCInventorySystem::AddItem(int InItemNum)
+void UCInventorySystem::Update()
 {
-	InventoryWidget->CheckItem(InItemNum);
+	UpdateWidget();
+}
+
+void UCInventorySystem::AddItem(int InItemNum, int InItemValue)
+{
+	InventoryWidget->CheckItem(false, InItemNum, InItemValue);
+}
+
+void UCInventorySystem::UseItem(int InItemNum, int InItemValue)
+{
+	InventoryWidget->CheckItem(true, InItemNum, InItemValue);
+}
+
+void UCInventorySystem::UpdateWidget()
+{
+	FVector2D mousePosition = FVector2D::ZeroVector;
+	mousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(OwnerController);
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, mousePosition.ToString());
+	InventoryWidget->SetMouseItemPosition(mousePosition);
+}
+
+void UCInventorySystem::ShowWidget()
+{
+	InventoryWidget->SetVisibility(ESlateVisibility::Visible);
 }
 

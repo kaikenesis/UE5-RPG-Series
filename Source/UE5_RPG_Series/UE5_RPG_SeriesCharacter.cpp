@@ -47,6 +47,8 @@ AUE5_RPG_SeriesCharacter::AUE5_RPG_SeriesCharacter()
 	InteractCollision->SetupAttachment(GetMesh());
 	InteractCollision->SetCapsuleHalfHeight(88.f);
 	InteractCollision->SetCapsuleRadius(44.f);
+	InteractCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	InteractCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;

@@ -2,7 +2,9 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Components/CanvasPanel.h"
+#include "Components/Button.h"
 #include "Kismet/KismetTextLibrary.h"
+#include "Kismet/KismetInputLibrary.h"
 #include "Styling/SlateBrush.h"
 
 void UCItemWidget::NativePreConstruct()
@@ -27,15 +29,24 @@ void UCItemWidget::SetImageTexture(UTexture2D* InTexture)
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, InTexture->GetName());
 }
 
-void UCItemWidget::IncreaseItemCount()
+void UCItemWidget::SetItemCount(int InValue)
 {
-	Count++;
+	Count = InValue;
+	Count = FMath::Clamp(Count, 0, 99);
 	ItemCount->SetText(UKismetTextLibrary::Conv_IntToText(Count));
 }
 
-void UCItemWidget::DecreaseItemCount()
+void UCItemWidget::IncreaseItemCount(int InValue)
 {
-	Count--;
+	Count += InValue;
+	Count = FMath::Clamp(Count, 0, 99);
+	ItemCount->SetText(UKismetTextLibrary::Conv_IntToText(Count));
+}
+
+void UCItemWidget::DecreaseItemCount(int InValue)
+{
+	Count -= InValue;
+	Count = FMath::Clamp(Count, 0, 99);
 	ItemCount->SetText(UKismetTextLibrary::Conv_IntToText(Count));
 }
 
@@ -51,6 +62,11 @@ void UCItemWidget::SetVisibleWithoutCount(ESlateVisibility InVisibility)
 	SetVisibility(InVisibility);
 }
 
+void UCItemWidget::BindItemSlotButton()
+{
+	Button->OnClicked.AddDynamic(this, &UCItemWidget::OnClicked);
+}
+
 UObject* UCItemWidget::GetImageTexture()
 {
 	FSlateBrush brush = ItemImage->Brush;
@@ -59,4 +75,10 @@ UObject* UCItemWidget::GetImageTexture()
 		return brush.GetResourceObject();
 
 	return nullptr;
+}
+
+void UCItemWidget::OnClicked()
+{
+	if (OnItemSlotClicked.IsBound())
+		OnItemSlotClicked.Broadcast(this);
 }

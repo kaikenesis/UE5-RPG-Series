@@ -6,13 +6,14 @@
 #include "Templates/SubclassOf.h"
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
+#include "Interface/IInventory.h"
 #include "UE5_RPG_SeriesPlayerController.generated.h"
 
 /** Forward declaration to improve compiling times */
 class UNiagaraSystem;
 
 UCLASS()
-class AUE5_RPG_SeriesPlayerController : public APlayerController
+class AUE5_RPG_SeriesPlayerController : public APlayerController, public IIInventory
 {
 	GENERATED_BODY()
 
@@ -39,6 +40,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	class UInputAction* SetDestinationTouchAction;
 
+	//Interfaces
+public:
+	virtual void UseItem_Interface(int InItemNum, int InItemValue) override;
+
+private:
+	void UseItem(int InItemNum, int InItemValue);
+
 public:
 	void AddInteractionActor(AActor* OtherActor);
 	void RemoveInteractionActor(AActor* OtherActor);
@@ -61,6 +69,7 @@ protected:
 
 private:
 	void DoInteraction();
+	void ShowInventory();
 
 private:
 	FVector CachedDestination;
@@ -74,6 +83,8 @@ private:
 public:
 	UPROPERTY(VisibleDefaultsOnly)
 	class UCInventorySystem* InventorySystem;
+	
+	bool bIsInventoryVisible = false;
 };
 
 

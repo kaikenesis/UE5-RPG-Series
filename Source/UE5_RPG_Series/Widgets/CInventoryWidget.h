@@ -18,9 +18,21 @@ protected:
 	virtual void NativeConstruct() override;
 
 public:
-	void CheckItem(int InItemNum = -1);
-	void IncreaseItem(class UCItemWidget* InWidget, int InItemNum = -1);
-	void AddItem(class UCItemWidget* InWidget, int InItemNum = -1);
+	void CheckItem(bool bUseItem, int InItemNum, int InItemValue);
+
+	void IncreaseItem(class UCItemWidget* InWidget, int InItemValue);
+	void DecreaseItem(class UCItemWidget* InWidget, int InItemValue);
+
+	void AddItem(class UCItemWidget* InWidget, int InItemNum, int InItemValue);
+	void RemoveItem(class UCItemWidget* InWidget);
+
+	void SetMouseItemPosition(FVector2D InPosition);
+
+	void HideWidget();
+
+public:
+	UFUNCTION()
+	void OnItemSlotClicked(class UCItemWidget* InItemWidget);
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -37,6 +49,12 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	class UScrollBox* InventoryContainor;
+
+	UPROPERTY(meta = (BindWidget))
+	class UCItemWidget* MouseItem;
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* BtnExit;
 
 	class AUE5_RPG_SeriesPlayerController* PlayerController;
 

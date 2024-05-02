@@ -4,6 +4,8 @@
 #include "Blueprint/UserWidget.h"
 #include "CItemWidget.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FItemSlotClickedSignature, class UCItemWidget*, InItemWidget);
+
 UCLASS()
 class UE5_RPG_SERIES_API UCItemWidget : public UUserWidget
 {
@@ -17,17 +19,28 @@ public:
 	void Init();
 
 	void SetImageTexture(class UTexture2D* InTexture);
-	void IncreaseItemCount();
-	void DecreaseItemCount();
+	void SetItemCount(int InValue);
+	void IncreaseItemCount(int InValue);
+	void DecreaseItemCount(int InValue);
 
 	void SetVisibleWithCount(ESlateVisibility InVisibility);
 	// Count Visibilty = Hidden
 	void SetVisibleWithoutCount(ESlateVisibility InVisibility);
 
+	void BindItemSlotButton();
+
 	FORCEINLINE void SetItemNum(int InNum) { ItemNum = InNum; }
 	FORCEINLINE int GetItemNum() { return ItemNum; }
+	FORCEINLINE int GetItemCount() { return Count; }
 
 	class UObject* GetImageTexture();
+
+public:
+	UFUNCTION()
+	void OnClicked();
+
+public:
+	FItemSlotClickedSignature OnItemSlotClicked;
 
 public:
 	UPROPERTY(meta = (BindWidget))
@@ -38,8 +51,11 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	class UImage* ItemImage;
+	
+	UPROPERTY(meta = (BindWidget))
+	class UButton* Button;
 
 private:
-	int ItemNum = -1;
+	int ItemNum = 1;
 	int Count = 0;
 };

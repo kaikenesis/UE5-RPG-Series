@@ -34,4 +34,7 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	int32 ItemNum = -1;
+
+	UPROPERTY(EditAnywhere)
+	int32 ItemValue = 1;
 };
