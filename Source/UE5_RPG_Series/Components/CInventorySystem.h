@@ -30,8 +30,18 @@ public:
 
 	void ShowWidget();
 
+	class UCItemWidget* GetMouseItemWidget();
+
+public:
+	UFUNCTION()
+	void OnCloseInventoryClicked();
+
 public:
 	TSubclassOf<class UCInventoryWidget> InventoryWidgetClass;
+	TSubclassOf<class UCItemWidget> ItemWidgetClass;
+
 	class UCInventoryWidget* InventoryWidget;
+	class UCItemWidget* MouseItemWidget;
+	
 	class AUE5_RPG_SeriesPlayerController* OwnerController;
 };

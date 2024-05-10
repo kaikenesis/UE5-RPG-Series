@@ -7,6 +7,7 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
+#include "Components/CInventorySystem.h"
 #include "Widgets/CItemWidget.h"
 #include "UE5_RPG_SeriesPlayerController.h"
 
@@ -81,21 +82,31 @@ void UCInventoryWidget::NativeConstruct()
 			}
 		}
 	}
-	MouseItem->Init();
+
+	MouseItem = PlayerController->InventorySystem->GetMouseItemWidget();
+}
+
+void UCInventoryWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
 }
 
 void UCInventoryWidget::CheckItem(bool bUseItem, int InItemNum, int InItemValue)
 {
 	for (const auto& itemWidget : ItemWidgets)
 	{
-		if (itemWidget->GetVisibility() == ESlateVisibility::Visible)
+		if (itemWidget->IsSlotVisibility() == true)
 		{
 			if (itemWidget->GetItemNum() == Items[InItemNum]->ItemNum)
 			{
 				if (bUseItem == false)
 				{
-					IncreaseItem(itemWidget, InItemValue);
-					return;
+					if (itemWidget->IsCanStack() == true)
+					{
+						IncreaseItem(itemWidget, InItemValue);
+						return;
+					}
 				}
 				else
 				{
@@ -108,7 +119,7 @@ void UCInventoryWidget::CheckItem(bool bUseItem, int InItemNum, int InItemValue)
 
 	for (const auto& itemWidget : ItemWidgets)
 	{
-		if (itemWidget->GetVisibility() == ESlateVisibility::Hidden)
+		if (itemWidget->IsSlotVisibility() == false)
 		{
 			if (bUseItem == false)
 			{
@@ -158,6 +169,24 @@ void UCInventoryWidget::RemoveItem(UCItemWidget* InWidget)
 	}
 }
 
+void UCInventoryWidget::OnClosedInventory()
+{
+	if (MouseItem->IsSlotVisibility() == true)
+	{
+		LastItemSlot->SetImageTexture(Items[MouseItem->GetItemNum()]->ItemTexture);
+		LastItemSlot->SetItemNum(MouseItem->GetItemNum());
+		LastItemSlot->SetItemCount(MouseItem->GetItemCount());
+		LastItemSlot->SetVisibleWithCount(ESlateVisibility::Visible);
+
+		MouseItem->SetVisibleWithCount(ESlateVisibility::Hidden);
+	}
+}
+
+void UCInventoryWidget::LastMovedItemSlot(UCItemWidget* InItemWidget)
+{
+	LastItemSlot = InItemWidget;
+}
+
 void UCInventoryWidget::SetMouseItemPosition(FVector2D InPosition)
 {
 	MouseItem->SetPositionInViewport(InPosition);
@@ -170,33 +199,40 @@ void UCInventoryWidget::HideWidget()
 	FInputModeGameOnly inputmode;
 	PlayerController->SetInputMode(inputmode);
 	SetVisibility(ESlateVisibility::Hidden);
+	OnClosedInventory();
+
+	if (OnCloseInventoryClicked.IsBound())
+		OnCloseInventoryClicked.Broadcast();
 
 	PlayerController->bIsInventoryVisible = false;
 }
 
 void UCInventoryWidget::OnItemSlotClicked(UCItemWidget* InItemWidget)
 {
+
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("OnItemSlotClicked"));
 
-	if (MouseItem->GetVisibility() == ESlateVisibility::Hidden)
+	
+	if (MouseItem->IsSlotVisibility() == false)
 	{
-		if (InItemWidget->GetVisibility() == ESlateVisibility::Hidden)
+		if (InItemWidget->IsSlotVisibility() == false)
 			return;
 		
-		else if (InItemWidget->GetVisibility() == ESlateVisibility::Visible)
+		else if (InItemWidget->IsSlotVisibility() == true)
 		{
 			MouseItem->SetImageTexture(Items[InItemWidget->GetItemNum()]->ItemTexture);
 			MouseItem->SetItemNum(InItemWidget->GetItemNum());
 			MouseItem->SetItemCount(InItemWidget->GetItemCount());
 			MouseItem->SetVisibleWithCount(ESlateVisibility::Visible);
 
+			LastMovedItemSlot(InItemWidget);
 			InItemWidget->SetVisibleWithCount(ESlateVisibility::Hidden);
 			return;
 		}
 	}
-	else if (MouseItem->GetVisibility() == ESlateVisibility::Visible)
+	else if (MouseItem->IsSlotVisibility() == true)
 	{
-		if (InItemWidget->GetVisibility() == ESlateVisibility::Hidden)
+		if (InItemWidget->IsSlotVisibility() == false)
 		{
 			InItemWidget->SetImageTexture(Items[MouseItem->GetItemNum()]->ItemTexture);
 			InItemWidget->SetItemNum(MouseItem->GetItemNum());
@@ -208,7 +244,7 @@ void UCInventoryWidget::OnItemSlotClicked(UCItemWidget* InItemWidget)
 			return;
 		}
 
-		else if (InItemWidget->GetVisibility() == ESlateVisibility::Visible)
+		else if (InItemWidget->IsSlotVisibility() == true)
 		{
 			UTexture2D* textureTemp = Items[MouseItem->GetItemNum()]->ItemTexture;
 			int itemNumTemp = MouseItem->GetItemNum();

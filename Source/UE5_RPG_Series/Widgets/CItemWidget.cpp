@@ -20,7 +20,7 @@ void UCItemWidget::NativeConstruct()
 void UCItemWidget::Init()
 {
 	ItemCount->SetVisibility(ESlateVisibility::Hidden);
-	SetVisibility(ESlateVisibility::Hidden);
+	ItemImage->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UCItemWidget::SetImageTexture(UTexture2D* InTexture)
@@ -34,6 +34,10 @@ void UCItemWidget::SetItemCount(int InValue)
 	Count = InValue;
 	Count = FMath::Clamp(Count, 0, 99);
 	ItemCount->SetText(UKismetTextLibrary::Conv_IntToText(Count));
+	if (Count >= 99)
+		bCanStack = false;
+	else if (Count < 99)
+		bCanStack = true;
 }
 
 void UCItemWidget::IncreaseItemCount(int InValue)
@@ -41,6 +45,8 @@ void UCItemWidget::IncreaseItemCount(int InValue)
 	Count += InValue;
 	Count = FMath::Clamp(Count, 0, 99);
 	ItemCount->SetText(UKismetTextLibrary::Conv_IntToText(Count));
+	if (Count >= 99)
+		bCanStack = false;
 }
 
 void UCItemWidget::DecreaseItemCount(int InValue)
@@ -48,18 +54,28 @@ void UCItemWidget::DecreaseItemCount(int InValue)
 	Count -= InValue;
 	Count = FMath::Clamp(Count, 0, 99);
 	ItemCount->SetText(UKismetTextLibrary::Conv_IntToText(Count));
+	if (bCanStack == false && Count < 99)
+		bCanStack = true;
 }
 
 void UCItemWidget::SetVisibleWithCount(ESlateVisibility InVisibility)
 {
 	ItemCount->SetVisibility(InVisibility);
-	SetVisibility(InVisibility);
+	ItemImage->SetVisibility(InVisibility);
 }
 
 void UCItemWidget::SetVisibleWithoutCount(ESlateVisibility InVisibility)
 {
 	ItemCount->SetVisibility(ESlateVisibility::Hidden);
-	SetVisibility(InVisibility);
+	ItemImage->SetVisibility(InVisibility);
+}
+
+bool UCItemWidget::IsSlotVisibility()
+{
+	if (ItemImage->GetVisibility() == ESlateVisibility::Visible || ItemCount->GetVisibility() == ESlateVisibility::Visible)
+		return true;
+
+	return false;
 }
 
 void UCItemWidget::BindItemSlotButton()

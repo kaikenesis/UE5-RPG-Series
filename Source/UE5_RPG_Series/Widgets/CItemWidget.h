@@ -26,12 +26,14 @@ public:
 	void SetVisibleWithCount(ESlateVisibility InVisibility);
 	// Count Visibilty = Hidden
 	void SetVisibleWithoutCount(ESlateVisibility InVisibility);
+	bool IsSlotVisibility();
 
 	void BindItemSlotButton();
 
 	FORCEINLINE void SetItemNum(int InNum) { ItemNum = InNum; }
 	FORCEINLINE int GetItemNum() { return ItemNum; }
 	FORCEINLINE int GetItemCount() { return Count; }
+	FORCEINLINE bool IsCanStack() { return bCanStack; }
 
 	class UObject* GetImageTexture();
 
@@ -58,4 +60,6 @@ public:
 private:
 	int ItemNum = 1;
 	int Count = 0;
+
+	bool bCanStack = true;
 };
